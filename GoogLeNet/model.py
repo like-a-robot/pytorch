@@ -34,10 +34,10 @@ class GoogLeNet(nn.Module):
     def __init__(self,Inception):
         super(GoogLeNet,self).__init__()
         self.b1 = nn.Sequential(
-            nn.Conv2d(in_channels=3,out_channels=64,kernel_size=7,stride=2,padding=3),
+            nn.Conv2d(in_channels=3,out_channels=64,kernel_size=7,stride=2,padding=3),nn.ReLU(),
             nn.MaxPool2d(kernel_size=3, stride=2),
-            nn.Conv2d(in_channels=64,out_channels=64,kernel_size=1),
-            nn.Conv2d(in_channels=64,out_channels=192,kernel_size=3,padding=1),
+            nn.Conv2d(in_channels=64,out_channels=64,kernel_size=1),nn.ReLU(),
+            nn.Conv2d(in_channels=64,out_channels=192,kernel_size=3,padding=1),nn.ReLU(),
             nn.MaxPool2d(kernel_size=3, stride=2),
         )
         self.b2 = nn.Sequential(
@@ -59,6 +59,7 @@ class GoogLeNet(nn.Module):
         )
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.dropout = nn.Dropout(0.4)
+        self.flatten = nn.Flatten()
         self.fc = nn.Linear(1024, 10)
 
         for m in self.modules():
@@ -77,8 +78,8 @@ class GoogLeNet(nn.Module):
         x = self.b3(x)
         x = self.b4(x)
         x = self.avgpool(x)
-        x = torch.flatten(x, 1)  # 关键：展平为 (N, 1024)
         x = self.dropout(x)
+        x = self.flatten(x)
         x = self.fc(x)
 
         return x
